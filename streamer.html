@@ -1,0 +1,130 @@
+<html>
+<head>
+    <title>Streamer</title>
+</head>
+<body>
+    <video id="leftVideo" autoplay muted></video>
+    <!--video id="rightVideo" autoplay></!--video-->
+    <button id="startrec" >Sart rec</button>
+    <script>
+        // get video dom element
+        const video = document.getElementById('leftVideo');
+        const rightVideo = document.getElementById('rightVideo');
+        const startrecButton = document.querySelector('button#startrec');
+        const WS_URL = location.origin.replace(/^http/, 'ws');
+        const FPS = 3;
+        const ws = new WebSocket(WS_URL);
+        let mediaRecorder;
+        let recordedBlobs;
+
+        // request access to webcam
+        navigator.mediaDevices.getUserMedia({video: {width: 426, height: 240},audio: true}).then((stream) => video.srcObject = stream);
+        
+        // returns a frame encoded in base64
+        /*const getFrame = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const data = canvas.toDataURL('image/png');
+            return data;
+        }*/
+
+        video.addEventListener('canplay', () => {
+        let stream;
+        const fps = 0;
+        if (video.captureStream) {
+            stream = video.captureStream(fps);
+        } else if (video.mozCaptureStream) {
+            stream = video.mozCaptureStream(fps);
+        } else {
+            console.error('Stream capture is not supported');
+            stream = null;
+        }
+        window.stream = stream
+        //rightVideo.srcObject = window.stream;
+        
+        sendrecButton.addEventListener('click', () => {
+            console.error('Sending');
+        
+            const WS_URL = location.origin.replace(/^http/, 'ws');
+            const FPS = 3;
+            const ws = new WebSocket(WS_URL);
+            ws.onopen = () => {
+                console.log(`Connected to ${WS_URL}`);
+                setInterval(() => {
+                    ws.send("recordedBlobs");
+                }, 1000 / FPS);
+            }
+            });
+        });
+        function handleDataAvailable(event) {
+        console.log('handleDataAvailable', event);
+        if (event.data && event.data.size > 0) {
+            recordedBlobs = [];
+            recordedBlobs.push(event.data);
+            ws.send(event.data);
+            /*ws.onopen = () => {
+                
+            }*/
+        }
+        }
+        function startRecoding(){
+            recordedBlobs = [];
+            try {
+                console.error('Start recording init');
+                recordedBlobs = [];
+                let options = {mimeType: 'video/webm;codecs=vp9'};
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    console.error(`${options.mimeType} is not Supported`);
+                    errorMsgElement.innerHTML = `${options.mimeType} is not Supported`;
+                    options = {mimeType: 'video/webm;codecs=vp8'};
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    console.error(`${options.mimeType} is not Supported`);
+                    errorMsgElement.innerHTML = `${options.mimeType} is not Supported`;
+                    options = {mimeType: 'video/webm'};
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                        console.error(`${options.mimeType} is not Supported`);
+                        errorMsgElement.innerHTML = `${options.mimeType} is not Supported`;
+                        options = {mimeType: ''};
+                    }
+                    }
+                }
+                mediaRecorder = new MediaRecorder(window.stream, options);
+                console.error('Start recording');
+                console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+                mediaRecorder.onstop = (event) => {
+                    console.log('Recorder stopped: ', event);
+                    console.log('Recorded Blobs: ', recordedBlobs);
+                };
+                mediaRecorder.ondataavailable = handleDataAvailable;
+                mediaRecorder.start(1000); // collect 10ms of data
+                console.log('MediaRecorder started', mediaRecorder);
+            } catch (e){
+                console.error('Exception while creating MediaRecorder:', e);
+                return
+            }
+        }
+        function stopRecording(){
+            mediaRecorder.stop();
+            console.error('Stop recording');
+        }
+        startrecButton.addEventListener('click', () => {
+            console.error('Start');
+            if(startrecButton.innerHTML == "Sart rec"){
+                startRecoding();
+                startrecButton.innerHTML = "Stop rec";
+            } else {
+                stopRecording();
+                startrecButton.innerHTML = "Sart rec";
+            }
+            
+
+        });
+        stoprecButton.addEventListener('click', () => {
+            console.error('Stop');
+            
+        });
+    </script>
+</body>
+</html>

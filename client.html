@@ -1,0 +1,67 @@
+<html>
+<head>
+    <title>Client</title>
+</head>
+<body>
+    <video autoplay>
+        <p id="errMessage">In attesa di connessione</p>
+    </video>
+    <!--button id="playvideo" >Play</!--button-->
+    <script>
+        // get img dom element
+        const video = document.querySelector('video');
+        const playvideoButton = document.querySelector('button#playvideo');
+        const perrMessage = document.getElementById('errMessage');
+        let recordedBlobs;
+        recordedBlobs = [];
+        let currTime = 0.0;
+        
+        const WS_URL = location.origin.replace(/^http/, 'ws');
+        const ws = new WebSocket(WS_URL);
+        ws.onopen = () => console.log(`Connected to ${WS_URL}`);
+        ws.onmessage = message => {
+            console.log(message.data);
+            recordedBlobs.push(message.data);
+            // set the base64 string to the src tag of the image
+            currTime += 1000;
+        }
+        function loadVideo(){
+            try {
+                const superBuffer = new Blob(recordedBlobs, {type: 'video/webm'});
+                //recordedBlobs = [];
+                //video.src = null;
+                //video.srcObject = null;
+                video.src = window.URL.createObjectURL(superBuffer);
+                if (currTime>2000){
+                    video.currentTime = currTime/1000-2;
+                } else {
+                    video.pause(); 
+                }
+                video.controls = true;
+                //video.play();
+                
+            } catch {
+                perrMessage.innerHTML= "E' stato riscontrato un problema";
+            }
+        }
+        
+        /*playvideoButton.addEventListener('click', () => {
+            
+            if (playvideoButton.innerHTML=="Play"){
+                console.error('Playing');
+                //loadVideo();
+                playvideoButton.innerHTML="Stop";
+                video.play();
+            } else {
+                playvideoButton.innerHTML="Play";
+                recordedBlobs = [];
+            }
+            
+        });*/
+        setInterval(function() {
+            if(recordedBlobs.length>0){loadVideo();}
+        }, 1000);
+        
+    </script>
+</body>
+</html>
