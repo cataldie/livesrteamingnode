@@ -38,6 +38,38 @@ wsServer.on('connection', (ws, req) => {
     });
 });
 
+var mysql = require('mysql');
+
+/*var con = mysql.createConnection({
+  host: "linc050.arubabusiness.it",
+  user: "ij0a08l1_test",
+  password: "EYM%Y?%#qa)$",
+  database: "ij0a08l1_wp"
+});
+
+app.post('/startvideo', (req, res) => {
+    var id = req.body;
+    con.connect(function(err) {
+        if (err) throw err;
+        var sql = "UPDATE wp_users_ads SET is_online=1 WHERE id = 2372";
+        con.query(sql, function (err, res) {
+          if (err) throw err;
+          console.log(res.affectedRows + " record(s) updated");
+        });
+      });
+})
+app.post('/stopvideo', (req, res) => {
+    var id = req.body;
+    con.connect(function(err) {
+        if (err) throw err;
+        var sql = "UPDATE wp_users_ads SET is_online=0 WHERE id =2372";
+        con.query(sql, function (err, res) {
+          if (err) throw err;
+          console.log(res.affectedRows + " record(s) updated");
+        });
+      });
+})*/
+
 // HTTP stuff
 app.get('/client', (req, res) => res.sendFile(path.resolve(__dirname, './client.html')));
 app.get('/streamer', (req, res) => res.sendFile(path.resolve(__dirname, './streamer.html')));

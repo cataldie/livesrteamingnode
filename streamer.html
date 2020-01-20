@@ -1,6 +1,11 @@
 <html>
 <head>
     <title>Streamer</title>
+    
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 </head>
 <body>
     <video id="leftVideo" autoplay muted></video>
@@ -16,6 +21,9 @@
         const ws = new WebSocket(WS_URL);
         let mediaRecorder;
         let recordedBlobs;
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const id = urlParams.get('id')
 
         // request access to webcam
         navigator.mediaDevices.getUserMedia({video: {width: 426, height: 240},audio: true}).then((stream) => video.srcObject = stream);
@@ -44,7 +52,7 @@
         window.stream = stream
         //rightVideo.srcObject = window.stream;
         
-        sendrecButton.addEventListener('click', () => {
+        /*sendrecButton.addEventListener('click', () => {
             console.error('Sending');
         
             const WS_URL = location.origin.replace(/^http/, 'ws');
@@ -56,18 +64,18 @@
                     ws.send("recordedBlobs");
                 }, 1000 / FPS);
             }
-            });
+            });*/
         });
         function handleDataAvailable(event) {
-        console.log('handleDataAvailable', event);
-        if (event.data && event.data.size > 0) {
-            recordedBlobs = [];
-            recordedBlobs.push(event.data);
-            ws.send(event.data);
-            /*ws.onopen = () => {
-                
-            }*/
-        }
+            console.log('handleDataAvailable', event);
+            if (event.data && event.data.size > 0) {
+                recordedBlobs = [];
+                recordedBlobs.push(event.data);
+                ws.send(event.data);
+                /*ws.onopen = () => {
+                    
+                }*/
+            }
         }
         function startRecoding(){
             recordedBlobs = [];
@@ -112,19 +120,22 @@
         startrecButton.addEventListener('click', () => {
             console.error('Start');
             if(startrecButton.innerHTML == "Sart rec"){
-                startRecoding();
+                //startRecoding();
                 startrecButton.innerHTML = "Stop rec";
+                console.log("current id %s",id);
+                //$.post('http://cataldiserver.hopto.org:5000/startvideo', id)
             } else {
-                stopRecording();
+                //stopRecording();
                 startrecButton.innerHTML = "Sart rec";
+                //$.post('http://cataldiserver.hopto.org:5000/stopvideo', id)
             }
             
 
         });
-        stoprecButton.addEventListener('click', () => {
+        /*stoprecButton.addEventListener('click', () => {
             console.error('Stop');
             
-        });
+        });*/
     </script>
 </body>
 </html>
